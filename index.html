@@ -14,14 +14,38 @@
 </style>
 
 <body>
+    <script type="x-shader/x-vertex" id="vertex-shader">
+        precision mediump float;
+
+        out vec3 vPosition;
+
+        void main()
+        {   
+            gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(position, 1.0);
+            vPosition = position;
+        }
+    </script>
     <script type="x-shader/x-fragment" id="fragment-shader">
         precision mediump float;
 
+        in vec3 vPosition;
         out vec4 fragColor;
+
+        float voronoi(vec2 position, vec2 cellNumber){
+            vec2 cellSize = 1. / cellNumber;
+            vec2 cellPosition = floor(position / cellSize) * cellSize + cellSize / 2.;
+
+            if(distance(position, cellPosition) < 0.01){
+                return 0.;
+            }
+            return 1.;
+        }
+
 
         void main()
         {  
-            fragColor = vec4(vec3(0), 1);
+            float result = voronoi(vPosition.xy, vec2(10, 10));
+            fragColor = vec4(vec3(result), 1);
         }
     </script>
     <script type="importmap">
@@ -50,9 +74,11 @@
         document.body.appendChild(renderer.domElement)
 
         const fragShader = document.getElementById("fragment-shader").innerHTML;
+        const vertexShader = document.getElementById("vertex-shader").innerHTML;
 
         const material = new THREE.ShaderMaterial({
             fragmentShader: fragShader,
+            vertexShader: vertexShader,
             glslVersion: THREE.GLSL3,
         })
 
