@@ -31,9 +31,14 @@
         in vec3 vPosition;
         out vec4 fragColor;
 
+        float random(in vec2 _st) {
+            return fract(sin(dot(_st.xy, vec2(12.9898,78.233))) * 43758.5453123);
+        }
+
         float voronoi(vec2 position, vec2 cellNumber){
             vec2 cellSize = 1. / cellNumber;
             vec2 cellPosition = floor(position / cellSize) * cellSize + cellSize / 2.;
+            cellPosition += (random(cellPosition) * 2. - 1.)  * cellSize / 2.;
 
             if(distance(position, cellPosition) < 0.01){
                 return 0.;
