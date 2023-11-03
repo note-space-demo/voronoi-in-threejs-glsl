@@ -38,9 +38,9 @@
         float voronoi(vec2 position, vec2 cellNumber){
             vec2 cellSize = 1. / cellNumber;
             vec2 cellPosition = floor(position / cellSize) * cellSize + cellSize / 2.;
-            cellPosition += (random(cellPosition) * 2. - 1.)  * cellSize / 2.;
+            vec2 offsettedCellPosition = cellPosition + (random(cellPosition) * 2. - 1.)  * cellSize / 2.;
 
-            if(distance(position, cellPosition) < 0.01){
+            if(distance(position, offsettedCellPosition) < 0.01){
                 return 0.;
             }
             return 1.;
@@ -49,7 +49,7 @@
 
         void main()
         {  
-            float result = voronoi(vPosition.xy, vec2(10, 10));
+            float result = voronoi(vPosition.xy * 0.5 + 0.5, vec2(10, 10));
             fragColor = vec4(vec3(result), 1);
         }
     </script>
