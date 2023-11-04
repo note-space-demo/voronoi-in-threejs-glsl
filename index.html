@@ -35,21 +35,47 @@
             return fract(sin(dot(_st.xy, vec2(12.9898,78.233))) * 43758.5453123);
         }
 
+        float wrap(float value){
+            if(value >= 1.){
+                return mod(value, 1.);
+            }
+
+            if(value < 0.){
+                return 1. - mod(value * -1., 1.);
+            }
+            return value;
+        }
+
+        vec2 wrap(vec2 value){
+            return vec2(wrap(value.x), wrap(value.y));
+        }
+
+
         float voronoi(vec2 position, vec2 cellNumber){
             vec2 cellSize = 1. / cellNumber;
             vec2 cellPosition = floor(position / cellSize) * cellSize + cellSize / 2.;
-            vec2 offsettedCellPosition = cellPosition + (random(cellPosition) * 2. - 1.)  * cellSize / 2.;
 
-            if(distance(position, offsettedCellPosition) < 0.01){
-                return 0.;
+            float maxDistance = distance(vec2(0.), cellSize);
+            float minDistance = maxDistance;
+            for(float offsetX = -1.; offsetX < 2.; offsetX++){
+                for(float offsetY = -1.; offsetY < 2.; offsetY++){
+                    vec2 currentCellPosition = cellPosition + vec2(offsetX, offsetY) * cellSize;
+                    vec2 wrapCellPosition = wrap(currentCellPosition);
+                    vec2 offsettedCurrentCellPosition = currentCellPosition + (random(wrapCellPosition) * 2. - 1.)  * cellSize / 2.;
+                    float currentDistance = distance(position, offsettedCurrentCellPosition);
+                    if(minDistance > currentDistance){
+                        minDistance = currentDistance;
+                    }
+                }
             }
-            return 1.;
+
+            return minDistance / maxDistance;
         }
 
 
         void main()
         {  
-            float result = voronoi(vPosition.xy * 0.5 + 0.5, vec2(10, 10));
+            float result = voronoi(vPosition.xy / 1.5 * 0.5 + 0.5, vec2(10, 10));
             fragColor = vec4(vec3(result), 1);
         }
     </script>
